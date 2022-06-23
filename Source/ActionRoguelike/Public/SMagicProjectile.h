@@ -22,15 +22,15 @@ public:
 protected:
 
 	// Sphere for a basic collision system
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,  Category = "Components")
 	USphereComponent* SphereComp;
 
 	// Basic projectile movement
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UProjectileMovementComponent* MovementComp;
 
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UParticleSystemComponent* EffectComp;
 	
 	// Called when the game starts or when spawned
