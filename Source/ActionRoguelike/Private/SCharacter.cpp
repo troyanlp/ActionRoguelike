@@ -7,11 +7,13 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "ActionRoguelike/Public/SInteractionComponent.h"
+#include "ActionRoguelike/Public/SAttributeComponent.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	//The name we give it is how we're going to view it in the editor
@@ -24,6 +26,8 @@ ASCharacter::ASCharacter()
 
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
 
+	AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComp");
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false;
@@ -33,7 +37,6 @@ ASCharacter::ASCharacter()
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void ASCharacter::MoveForward(float value)
@@ -41,7 +44,7 @@ void ASCharacter::MoveForward(float value)
 	FRotator ControlRot = GetControlRotation();
 	ControlRot.Pitch = 0.0f;
 	ControlRot.Roll = 0.0f;
-	
+
 	AddMovementInput(ControlRot.Vector(), value);
 }
 
@@ -57,7 +60,7 @@ void ASCharacter::MoveRight(float value)
 	// Z = Up (Blue)
 
 	FVector RightVector = FRotationMatrix(ControlRot).GetScaledAxis(EAxis::Y);
-	
+
 	AddMovementInput(RightVector, value);
 }
 
@@ -71,23 +74,23 @@ void ASCharacter::PrimaryAttack()
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
 	// if(ensureAlways(ProjectileClass))
-	if(ensure(ProjectileClass))
+	if (ensure(ProjectileClass))
 	{
 		FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-	
-		FTransform SpawnTM = FTransform(GetControlRotation(),HandLocation);
+
+		FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
 
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		SpawnParams.Instigator = this;
-	
+
 		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
 	}
 }
 
 void ASCharacter::PrimaryInteract()
 {
-	if(InteractionComp)
+	if (InteractionComp)
 	{
 		InteractionComp->PrimaryInteract();
 	}
@@ -108,11 +111,13 @@ void ASCharacter::Tick(float DeltaTime)
 	// Set line end in direction of the actor's forward
 	FVector ActorDirection_LineEnd = LineStart + (GetActorForwardVector() * 100.0f);
 	// Draw Actor's Direction
-	DrawDebugDirectionalArrow(GetWorld(), LineStart, ActorDirection_LineEnd, DrawScale, FColor::Yellow, false, 0.0f, 0, Thickness);
+	DrawDebugDirectionalArrow(GetWorld(), LineStart, ActorDirection_LineEnd, DrawScale, FColor::Yellow, false, 0.0f, 0,
+	                          Thickness);
 
 	FVector ControllerDirection_LineEnd = LineStart + (GetControlRotation().Vector() * 100.0f);
 	// Draw 'Controller' Rotation ('PlayerController' that 'possessed' this character)
-	DrawDebugDirectionalArrow(GetWorld(), LineStart, ControllerDirection_LineEnd, DrawScale, FColor::Green, false, 0.0f, 0, Thickness);
+	DrawDebugDirectionalArrow(GetWorld(), LineStart, ControllerDirection_LineEnd, DrawScale, FColor::Green, false, 0.0f,
+	                          0, Thickness);
 }
 
 // Called to bind functionality to input
@@ -122,7 +127,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ASCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ASCharacter::MoveRight);
-	
+
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
@@ -131,4 +136,3 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
 }
-
