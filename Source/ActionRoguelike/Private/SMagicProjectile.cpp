@@ -4,10 +4,9 @@
 #include "ActionRoguelike/Public/SMagicProjectile.h"
 
 #include "SAttributeComponent.h"
+#include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
-
 
 // Sets default values
 ASMagicProjectile::ASMagicProjectile()

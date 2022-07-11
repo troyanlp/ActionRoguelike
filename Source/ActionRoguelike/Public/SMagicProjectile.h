@@ -6,7 +6,6 @@
 #include "SProjectileBase.h"
 #include "SMagicProjectile.generated.h"
 
-
 UCLASS()
 class ACTIONROGUELIKE_API ASMagicProjectile : public ASProjectileBase // Re-parented from AActor
 {
