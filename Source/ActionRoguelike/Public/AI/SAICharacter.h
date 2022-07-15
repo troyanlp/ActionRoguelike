@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SAttributeComponent.h"
 #include "GameFramework/Character.h"
 #include "SAICharacter.generated.h"
 
 class UPawnSensingComponent;
+class USAttributeComponent;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASAICharacter : public ACharacter
@@ -20,6 +22,9 @@ public:
 protected:
 
 	virtual void PostInitializeComponents() override;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	USAttributeComponent* AttributeComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComp;
