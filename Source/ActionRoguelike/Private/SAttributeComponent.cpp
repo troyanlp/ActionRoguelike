@@ -33,7 +33,7 @@ float USAttributeComponent::GetHealthMax() const
 
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
-	if(!GetOwner()->CanBeDamaged()) return false;
+	if(!GetOwner()->CanBeDamaged() && Delta < 0.0f) return false;
 	
 	float OldHealth = Health;
 
