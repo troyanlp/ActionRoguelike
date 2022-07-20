@@ -26,6 +26,20 @@ void ASGameModeBase::StartPlay()
 	                                SpawnTimerInterval, true);
 }
 
+void ASGameModeBase::KillAll()
+{
+	for (TActorIterator<ASAICharacter> It(GetWorld()); It; ++It)
+	{
+		ASAICharacter* Bot = *It;
+
+		USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(Bot);
+		if (ensure(AttributeComp) && AttributeComp->IsAlive())
+		{
+			AttributeComp->Kill(this); // @fixme: Pass in player? For kill credits
+		}
+	}
+}
+
 void ASGameModeBase::SpawnBotTimerElapsed()
 {
 	int32 NrAliveBots = 0;
@@ -34,7 +48,7 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 		ASAICharacter* Bot = *It;
 
 		USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(Bot);
-		if (AttributeComp && AttributeComp->IsAlive())
+		if (ensure(AttributeComp) && AttributeComp->IsAlive())
 		{
 			NrAliveBots++;
 		}
