@@ -5,6 +5,10 @@
 
 #include "Curves/CurveLinearColor.h"
 
+static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(
+	TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."),
+	ECVF_Cheat);
+
 // Sets default values for this component's properties
 USInteractionComponent::USInteractionComponent()
 {
@@ -17,6 +21,8 @@ USInteractionComponent::USInteractionComponent()
 
 void USInteractionComponent::PrimaryInteract()
 {
+	bool bDebugDraw = CVarDebugDrawInteraction.GetValueOnGameThread();
+	
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 
@@ -27,7 +33,7 @@ void USInteractionComponent::PrimaryInteract()
 	MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
 
 	FVector End = EyeLocation + (EyeRotation.Vector() * 1000);
-	
+
 	// Commented due to requiring too much precision to aim for the interactable object
 	//FHitResult Hit;
 	//bool bBlockingHit = GetWorld()->LineTraceSingleByObjectType(Hit, EyeLocation, End, ObjectQueryParams);
@@ -39,27 +45,28 @@ void USInteractionComponent::PrimaryInteract()
 	FCollisionShape Shape;
 	Shape.SetSphere(Radius);
 
-	bool bBlockingHit = GetWorld()->SweepMultiByObjectType(Hits, EyeLocation, End, FQuat::Identity, ObjectQueryParams, Shape);
+	bool bBlockingHit = GetWorld()->SweepMultiByObjectType(Hits, EyeLocation, End, FQuat::Identity, ObjectQueryParams,
+	                                                       Shape);
 	FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
-	
+
 	for (FHitResult Hit : Hits)
 	{
+		DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 2.0f);
+		
 		AActor* HitActor = Hit.GetActor();
-		if(HitActor)
+		if (HitActor)
 		{
-			if(HitActor->Implements<USGameplayInterface>())
+			if (HitActor->Implements<USGameplayInterface>())
 			{
 				APawn* MyPawn = Cast<APawn>(MyOwner);
 				ISGameplayInterface::Execute_Interact(HitActor, MyPawn);
-				break; // This break is meant to only interact with the first interactable instead of all that have been hit
+				break;
+				// This break is meant to only interact with the first interactable instead of all that have been hit
 			}
 		}
 
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 2.0f);
+		if(bDebugDraw) DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 2.0f);
 	}
-	
-	
-	DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 2.0f);
 }
 
 
@@ -69,15 +76,14 @@ void USInteractionComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
 }
 
 
 // Called every frame
-void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+                                           FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
 }
-

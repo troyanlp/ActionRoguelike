@@ -4,6 +4,7 @@
 #include "ActionRoguelike/Public/SMagicProjectile.h"
 
 #include "SAttributeComponent.h"
+#include "SGameplayFunctionLibrary.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -17,15 +18,16 @@ ASMagicProjectile::ASMagicProjectile()
 	DamageAmount = 20.0f;
 }
 
-void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                       UPrimitiveComponent* OtherComp,
+                                       int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// Check that the actor that we've hit is valid (not null)
 	// Get the attribute component
 	// Change the health
-	if(OtherActor && OtherActor != GetInstigator())
+	if (OtherActor && OtherActor != GetInstigator())
 	{
-		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+		/*USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
 		if(AttributeComp)
 		{
 			// minus in front of DamageAmount to apply the change as damage, not healing
@@ -33,7 +35,10 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 			
 			// Only explode when we hit something valid
 			Explode();
+		}*/
+		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
+		{
+			Explode();
 		}
 	}
 }
-
