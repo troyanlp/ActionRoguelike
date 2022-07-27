@@ -3,10 +3,12 @@
 
 #include "ActionRoguelike/Public/SMagicProjectile.h"
 
+#include "SActionComponent.h"
 #include "SAttributeComponent.h"
 #include "SGameplayFunctionLibrary.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
@@ -27,15 +29,18 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 	// Change the health
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-		/*USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
-		if(AttributeComp)
+		//static FGameplayTag Tag = FGameplayTag::RequestGameplayTag("Status.Parrying");	
+		
+		USActionComponent* ActionComp = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass()));
+		if(ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag))
 		{
-			// minus in front of DamageAmount to apply the change as damage, not healing
-			AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
-			
-			// Only explode when we hit something valid
-			Explode();
-		}*/
+			MoveComp->Velocity = -MoveComp->Velocity;
+
+			SetInstigator(Cast<APawn>(OtherActor));
+			return;
+		}
+		
+		
 		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
 			Explode();
